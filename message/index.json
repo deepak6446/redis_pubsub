@@ -1,0 +1,29 @@
+{
+  "channelRequired": {
+    "status": 400,
+    "response": {
+      "error": "error message channel_id is missing"
+    }
+  },
+  "existingListenerErr": {
+    "status": 422,
+    "response": {
+      "error": "error message channel is already subscribed"
+    }
+  },
+  "noListenerErr": {
+    "status": 404,
+    "response": {
+      "error": "error message channel is not subscribed"
+    }
+  },
+  "OK": {
+    "listenerSuccessful": {
+      "message": "successfully started listening"
+    },
+    "listenerDelSuccessful": {
+      "message": "successfully unsubscribed"
+    },
+    "status": 200
+  }
+}
