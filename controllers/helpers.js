@@ -5,8 +5,8 @@ const subClient = subClientFun()
 const redisClient = require("../config/redisConnect").redisClient
 let clients = {}
 
-const listener = async (client) => {
-    console.info("Listening for messages")
+const listener = async (client, chanl) => {
+    console.info(`Listening for messages on channel: ${chanl}`)
     client.on("message", (channel, message) => {
         console.log(`message ${message}, channel: ${channel}`)
 
@@ -28,12 +28,12 @@ const addDefaultListeners = async () => {
     if (err) {
         console.error("error in redis: ", err)
     }
-    for(let i=0; i<data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         addListener(data[i])
     }
 }
 
-listener()
+// listener()
 addDefaultListeners()
 
 /**
@@ -42,6 +42,16 @@ addDefaultListeners()
  * 
  */
 const addListener = async (channel) => {
+
+    let [err, data] = await wait(subClient.pubsubAsync, subClient, 'NUMSUB', channel)
+    if (err) {
+        console.error("error in redis: ", err)
+    }
+    console.log("num sub", data)
+    if (data[1] != 0) { 
+        return [data[1]] 
+    }
+
     console.info(`Adding listener for channel: ${channel}`)
     clients[channel] = subClientFun()
     clients[channel].subscribe(channel);
@@ -49,7 +59,7 @@ const addListener = async (channel) => {
     await new Promise((resolve) => {
         clients[channel].on("subscribe", function (chan, count) {
             if (channel == chan) {
-                listener(clients[channel])
+                listener(clients[channel], channel)
                 return resolve([count]);
             }
         })
